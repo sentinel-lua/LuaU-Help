@@ -1,0 +1,38 @@
+-- this is a basic example and may need changes depending on your game.
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+local RunService = game:GetService("RunService")
+
+local function getClosestPlayer()
+    local closestPlayer = nil
+    local shortestDistance = math.huge
+
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Team ~= LocalPlayer.Team and player.Character and player.Character:FindFirstChild("Head") then
+            local distance = (player.Character.Head.Position - LocalPlayer.Character.Head.Position).magnitude
+            if distance < shortestDistance then
+                shortestDistance = distance
+                closestPlayer = player
+            end
+        end
+    end
+
+    return closestPlayer
+end
+
+local function aimAt(target)
+    if not target or not target.Character or not target.Character:FindFirstChild("Head") then return end
+
+    local targetPosition = target.Character.Head.Position
+    local direction = (targetPosition - Camera.CFrame.p).unit
+    local newCFrame = CFrame.new(Camera.CFrame.p, Camera.CFrame.p + direction)
+
+    Camera.CFrame = newCFrame
+end
+
+RunService.RenderStepped:Connect(function()
+    local target = getClosestPlayer()
+    aimAt(target)
+end)
