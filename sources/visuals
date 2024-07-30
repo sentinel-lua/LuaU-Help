@@ -1,0 +1,85 @@
+-- Source For Boxes
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
+
+local function drawBox(player)
+    if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return end
+
+    local headPos = Camera:WorldToViewportPoint(player.Character.Head.Position)
+    local rootPos = Camera:WorldToViewportPoint(player.Character.HumanoidRootPart.Position)
+    
+    local size = Vector2.new(100, 200)  -- Adjust size as needed
+    local position = Vector2.new(headPos.X - size.X / 2, headPos.Y - size.Y / 2)
+    
+    -- Drawing the box
+    local box = Instance.new("Frame")
+    box.Size = UDim2.new(0, size.X, 0, size.Y)
+    box.Position = UDim2.new(0, position.X, 0, position.Y)
+    box.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    box.BorderSizePixel = 0
+    box.Parent = game.Players.LocalPlayer.PlayerGui
+end
+
+RunService.RenderStepped:Connect(function()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= Players.LocalPlayer then
+            drawBox(player)
+        end
+    end
+end)
+
+-- Source For Tracers
+
+local function drawTracer(player)
+    if not player.Character or not player.Character:FindFirstChild("Head") then return end
+    
+    local headPos = Camera:WorldToViewportPoint(player.Character.Head.Position)
+    local screenSize = Camera.ViewportSize
+    
+    local line = Instance.new("Frame")
+    line.Size = UDim2.new(0, 2, 0, (screenSize.Y - headPos.Y) * 2)  -- Adjust the height as needed
+    line.Position = UDim2.new(0, screenSize.X / 2, 0, headPos.Y)
+    line.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    line.BorderSizePixel = 0
+    line.Parent = game.Players.LocalPlayer.PlayerGui
+end
+
+RunService.RenderStepped:Connect(function()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= Players.LocalPlayer then
+            drawTracer(player)
+        end
+    end
+end)
+
+-- Source For Health Bars
+
+local function drawHealthBar(player)
+    if not player.Character or not player.Character:FindFirstChild("Humanoid") then return end
+    
+    local humanoid = player.Character.Humanoid
+    local headPos = Camera:WorldToViewportPoint(player.Character.Head.Position)
+    
+    local healthBar = Instance.new("Frame")
+    healthBar.Size = UDim2.new(0, 100, 0, 10)  -- Size of the health bar
+    healthBar.Position = UDim2.new(0, headPos.X - 50, 0, headPos.Y - 30)  -- Position it above the player’s head
+    healthBar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    healthBar.BorderSizePixel = 0
+    
+    local healthFill = Instance.new("Frame")
+    healthFill.Size = UDim2.new(humanoid.Health / humanoid.MaxHealth, 0, 1, 0)
+    healthFill.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    healthFill.BorderSizePixel = 0
+    healthFill.Parent = healthBar
+    
+    healthBar.Parent = game.Players.LocalPlayer.PlayerGui
+end
+
+RunService.RenderStepped:Connect(function()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= Players.LocalPlayer then
+            drawHealthBar(player)
+        end
+    end
+end)
