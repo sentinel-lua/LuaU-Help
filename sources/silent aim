@@ -1,0 +1,65 @@
+-- this is a basic example and may need changes depending on your game.
+
+
+local players = game:GetService("Players")
+local localPlayer = players.LocalPlayer
+local camera = workspace.Camera
+local UserInputService = game:GetService("UserInputService")
+local runService = game:GetService("RunService")
+
+local silentAimEnabled = false
+local aimKey = "q" -- change to your desired key
+
+local function getClosestPlayer()
+    local closestPlayer = nil
+    local closestDistance = math.huge
+
+    for i, player in pairs(players:GetPlayers()) do
+        if player ~= localPlayer then
+            local character = player.Character
+            if character then
+                local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                if humanoidRootPart then
+                    local distance = (humanoidRootPart.Position - camera.CFrame.Position).Magnitude
+                    if distance < closestDistance then
+                        closestPlayer = player
+                        closestDistance = distance
+                    end
+                end
+            end
+        end
+    end
+
+    return closestPlayer
+end
+
+local function predictMovement(player)
+    local character = player.Character
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    local velocity = humanoidRootPart.Velocity
+
+    local predX = humanoidRootPart.Position.X + (velocity.X * 0.1)
+    local predY = humanoidRootPart.Position.Y + (velocity.Y * 0.1)
+    local predZ = humanoidRootPart.Position.Z + (velocity.Z * 0.1)
+
+    return Vector3.new(predX, predY, predZ)
+end
+
+local function silentAim()
+    local closestPlayer = getClosestPlayer()
+    if closestPlayer then
+        local predictedPosition = predictMovement(closestPlayer)
+        camera.CFrame = CFrame.new(camera.CFrame.Position, predictedPosition)
+    end
+end
+
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode[aimKey:upper()] then
+        silentAimEnabled = not silentAimEnabled
+        if silentAimEnabled then
+            runService.RenderStepped:Connect(silentAim)
+        else
+            runService.RenderStepped:Disconnect(silentAim)
+        end
+    end
+end)
